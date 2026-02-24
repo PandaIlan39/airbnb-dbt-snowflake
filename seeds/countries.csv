@@ -1,0 +1,21 @@
+country_code,country_name,region,subregion,population,currency
+US,United States,Americas,Northern America,331000000,USD
+GB,United Kingdom,Europe,Northern Europe,67000000,GBP
+FR,France,Europe,Western Europe,67000000,EUR
+DE,Germany,Europe,Western Europe,83000000,EUR
+IT,Italy,Europe,Southern Europe,60000000,EUR
+ES,Spain,Europe,Southern Europe,47000000,EUR
+CA,Canada,Americas,Northern America,38000000,CAD
+AU,Australia,Oceania,Australia and New Zealand,26000000,AUD
+JP,Japan,Asia,Eastern Asia,126000000,JPY
+CN,China,Asia,Eastern Asia,1400000000,CNY
+IN,India,Asia,Southern Asia,1380000000,INR
+BR,Brazil,Americas,South America,213000000,BRL
+MX,Mexico,Americas,Central America,130000000,MXN
+RU,Russia,Europe,Eastern Europe,146000000,RUB
+ZA,South Africa,Africa,Southern Africa,60000000,ZAR
+NG,Nigeria,Africa,Western Africa,211000000,NGN
+EG,Egypt,Africa,Northern Africa,102000000,EGP
+AR,Argentina,Americas,South America,45000000,ARS
+TR,Turkey,Asia,Western Asia,84000000,TRY
+IL,Israel,Asia,Western Asia,9000000,ILS
