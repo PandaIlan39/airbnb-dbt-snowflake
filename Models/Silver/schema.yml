@@ -1,0 +1,83 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw data layer containing unprocessed source data"
+    database: AIRBNB_DB
+    schema: RAW
+    tables:
+      - name: listings
+        description: "Raw Airbnb listings data for New York City"
+
+models:
+  - name: silver_listings
+    description: "Cleaned and normalized Airbnb listings"
+    columns:
+      - name: listing_id
+        tests:
+          - unique
+          - not_null
+      - name: host_id
+        tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: price_usd
+        tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: room_type
+        tests:
+          - not_null:
+              config:
+                severity: warn
+          - accepted_values:
+              arguments:
+                values: ['Entire home/apt', 'Private room', 'Shared room', 'Hotel room']
+      - name: minimum_nights
+        tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: availability_365
+        tests:
+          - not_null:
+              config:
+                severity: warn
+
+  - name: pricing_analysis
+    description: "Average pricing per neighbourhood and room type"
+    columns:
+      - name: neighbourhood_group
+        tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: room_type
+        tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: avg_price
+        tests:
+          - not_null
+
+  - name: host_performance
+    description: "Host rankings by listings and reviews"
+    columns:
+      - name: host_id
+        tests:
+          - unique
+          - not_null
+      - name: total_listings
+        tests:
+          - not_null
+
+  - name: combined_analysis
+    description: "Airbnb listings enriched with country data"
+    columns:
+      - name: listing_id
+        tests:
+          - unique
+          - not_null

@@ -1,5 +1,5 @@
 WITH base AS (
-    SELECT * FROM {{ ref('stg_listings') }}
+    SELECT * FROM {{ ref('silver_listings') }}
 ),
 
 hosts AS (

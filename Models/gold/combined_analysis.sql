@@ -1,5 +1,5 @@
 WITH listings AS (
-    SELECT * FROM {{ ref('stg_listings') }}
+    SELECT * FROM {{ ref('silver_listings') }}
 ),
 
 countries AS (

@@ -15,7 +15,9 @@ clean-targets:
 
 models:
   airbnb_project:
-    staging:
+    bronze:
+      +materialized: view
+    Silver:
       +materialized: table
-    marts:
+    gold:
       +materialized: table

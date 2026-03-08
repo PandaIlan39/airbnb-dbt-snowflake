@@ -225,4 +225,8 @@ SELECT * FROM AIRBNB_DB.RAW.COMBINED_ANALYSIS LIMIT 10;
 ---
 
 ## 📝 License
+<<<<<<< HEAD
 MIT
+=======
+MIT
+>>>>>>> 8e0a43e54f2cbe4063cd297aee3dee03b22bae63
