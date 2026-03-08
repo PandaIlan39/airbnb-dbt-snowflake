@@ -1,8 +1,185 @@
 version: 2
 
+# ============================================
+# SOURCES
+# Raw tables loaded directly into Snowflake
+# from the Airbnb CSV file
+# ============================================
 sources:
   - name: raw
+    description: "Raw data layer containing unprocessed source data loaded into Snowflake"
     database: AIRBNB_DB
     schema: RAW
     tables:
       - name: listings
+        description: "Raw Airbnb listings data for New York City containing 102,599 records including host info, pricing, location and availability"
+
+# ============================================
+# MODELS
+# dbt transformation models built on top
+# of the raw source data
+# ============================================
+models:
+
+  # ------------------------------------------
+  # STAGING LAYER
+  # Cleans and normalizes raw source data
+  # ------------------------------------------
+  - name: stg_listings
+    description: "Cleaned and normalized Airbnb listings. Removes dollar signs from prices, converts data types, and filters out null IDs. This is the foundation for all downstream models."
+    columns:
+      - name: listing_id
+        description: "Unique identifier for each Airbnb listing. Primary key of this model."
+        tests:
+          - unique
+          - not_null
+
+      - name: listing_name
+        description: "Name or title of the Airbnb listing as provided by the host"
+
+      - name: host_id
+        description: "Unique identifier for the host who owns the listing"
+        tests:
+          - not_null
+
+      - name: host_name
+        description: "Name of the host who owns the listing"
+
+      - name: neighbourhood_group
+        description: "Borough or district the listing belongs to e.g. Manhattan, Brooklyn"
+
+      - name: neighbourhood
+        description: "Specific neighbourhood within the borough"
+
+      - name: latitude
+        description: "Geographic latitude coordinate of the listing"
+
+      - name: longitude
+        description: "Geographic longitude coordinate of the listing"
+
+      - name: country
+        description: "Country where the listing is located"
+
+      - name: country_code
+        description: "Two letter country code used to join with countries reference data"
+
+      - name: room_type
+        description: "Type of room being listed - must be one of the accepted values"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Entire home/apt', 'Private room', 'Shared room', 'Hotel room']
+
+      - name: price_usd
+        description: "Nightly price of the listing in USD. Dollar signs and commas removed and converted to float."
+        tests:
+          - not_null
+
+      - name: service_fee_usd
+        description: "Service fee charged by Airbnb in USD. Dollar signs and commas removed and converted to float."
+
+      - name: minimum_nights
+        description: "Minimum number of nights required to book the listing"
+        tests:
+          - not_null
+
+      - name: number_of_reviews
+        description: "Total number of reviews the listing has received"
+
+      - name: availability_365
+        description: "Number of days per year the listing is available for booking"
+        tests:
+          - not_null
+
+      - name: instant_bookable
+        description: "Whether the listing can be booked instantly without host approval"
+
+      - name: cancellation_policy
+        description: "Cancellation policy type e.g. flexible, moderate, strict"
+
+  # ------------------------------------------
+  # MARTS LAYER
+  # Business logic and analytics ready models
+  # ------------------------------------------
+  - name: pricing_analysis
+    description: "Aggregated pricing analysis by neighbourhood group and room type. Shows average, min and max prices to help understand market pricing trends across NYC boroughs."
+    columns:
+      - name: neighbourhood_group
+        description: "NYC borough e.g. Manhattan, Brooklyn, Queens"
+        tests:
+          - not_null
+
+      - name: room_type
+        description: "Type of room being listed"
+        tests:
+          - not_null
+
+      - name: total_listings
+        description: "Total number of listings in this neighbourhood and room type combination"
+
+      - name: avg_price
+        description: "Average nightly price in USD for this neighbourhood and room type"
+        tests:
+          - not_null
+
+      - name: min_price
+        description: "Lowest nightly price in USD for this neighbourhood and room type"
+
+      - name: max_price
+        description: "Highest nightly price in USD for this neighbourhood and room type"
+
+      - name: avg_availability
+        description: "Average number of days per year listings are available"
+
+  - name: host_performance
+    description: "Host performance rankings showing the most active and successful hosts on Airbnb NYC. Useful for identifying top performers and understanding host behavior."
+    columns:
+      - name: host_id
+        description: "Unique identifier for the host. Each host appears only once in this model."
+        tests:
+          - unique
+          - not_null
+
+      - name: host_name
+        description: "Name of the host"
+
+      - name: total_listings
+        description: "Total number of active listings this host manages"
+        tests:
+          - not_null
+
+      - name: avg_price
+        description: "Average nightly price across all of this host's listings"
+
+      - name: total_reviews
+        description: "Total number of reviews received across all of this host's listings"
+
+      - name: avg_availability
+        description: "Average availability in days per year across all listings"
+
+      - name: primary_neighbourhood
+        description: "The main neighbourhood where this host has listings"
+
+  - name: combined_analysis
+    description: "Airbnb listings enriched with country reference data. Joins listing data with the countries seed table to add region, population and currency information for deeper geographic analysis."
+    columns:
+      - name: listing_id
+        description: "Unique identifier for each listing. Primary key of this model."
+        tests:
+          - unique
+          - not_null
+
+      - name: country_name
+        description: "Full country name joined from the countries seed table"
+
+      - name: region
+        description: "Geographic region of the country e.g. Americas, Europe, Asia"
+
+      - name: subregion
+        description: "Geographic subregion e.g. Northern America, Western Europe"
+
+      - name: population
+        description: "Population of the country from the countries reference data"
+
+      - name: currency
+        description: "Currency code used in the country e.g. USD, EUR, GBP"
