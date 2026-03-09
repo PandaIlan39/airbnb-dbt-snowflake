@@ -1,5 +1,17 @@
+{{
+    config(
+        materialized='incremental',
+        unique_key='listing_id',
+        on_schema_change='append_new_columns'
+    )
+}}
+
 WITH source AS (
     SELECT * FROM {{ ref('bronze_listings') }}
+
+    {% if is_incremental() %}
+        WHERE load_date > (SELECT MAX(load_date) FROM {{ this }})
+    {% endif %}
 ),
 
 cleaned AS (
@@ -19,9 +31,12 @@ cleaned AS (
         REPLACE(REPLACE(service_fee, '$', ''), ',', '')::FLOAT      AS service_fee_usd,
         minimum_nights,
         number_of_reviews,
+        last_review,
         availability_365,
         instant_bookable,
-        cancellation_policy
+        cancellation_policy,
+        CURRENT_TIMESTAMP()                                         AS loaded_at,
+        CURRENT_DATE()                                              AS load_date
     FROM source
     WHERE id IS NOT NULL
     QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY id) = 1

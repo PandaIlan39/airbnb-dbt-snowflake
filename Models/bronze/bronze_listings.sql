@@ -5,4 +5,8 @@ WITH source AS (
     SELECT * FROM {{ source('raw', 'listings') }}
 )
 
-SELECT * FROM source
+SELECT
+    *,
+    CURRENT_TIMESTAMP()     AS loaded_at,
+    CURRENT_DATE()          AS load_date
+FROM source
